@@ -74,8 +74,6 @@ class ChannelsController < ApplicationController
     respond_to do |format|
       @track_title = params[:track_title]
       result = SpotifyService.search(track_title: @track_title)
-      # result = {nice: "job"}
-      puts result
       format.json {render json: result, status: :ok, location: @channel }
     end
   end

@@ -5,7 +5,7 @@ Rails.application.routes.draw do
 
   resources :channels
   post 'channels/:id/vote', to: 'channels#vote'
-  post 'channesl/:id/track', to: 'channels#search_track', as: 'spotify_track_search'
+  post 'channels/:id/track', to: 'channels#search_track', as: 'spotify_track_search'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

@@ -8,9 +8,12 @@ class SpotifyService
 
   def initialize(options)
     @track_title = options.fetch(:track_title)
+    RSpotify::authenticate(ENV['spotify_client_id'], ENV['spotify_client_secret'])
+
   end
 
   def search
+
     tracks = RSpotify::Track.search(@track_title)
 
     formatted_tracks = tracks.map do |track|
