@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root 'votes#index'
+  root 'channels/1'
 
   resources :votes
 
