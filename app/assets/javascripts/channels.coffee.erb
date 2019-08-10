@@ -1,0 +1,91 @@
+trackCardHtml = (track) ->
+  return """
+    <div class="track-card" data-track-id="#{track.id}">
+      <img src='#{track.image_med.url}'>
+      <div class="btn vote-btn btn-success btn-xl">Vote</div>
+      <div class="track-info">
+        <div class="track-name"><em>Track: </em>#{track.name}</div>
+        <div class="track-artist"><em>Artist: </em>#{track.artist}</div>
+        <div class="track-album-name"><em>Album: </em>#{track.album_name}</div>
+        <div class="track-duration"><em>#{track.duration_readable}</em></div>
+      </div>
+    </div>
+  """
+
+voteContainerHtml = () ->
+  return """
+  <div class="vote-container">
+    <span>Votes</span>
+    <span class="vote-count">0</span>
+  </div>
+  """
+
+pusherChannel = ()->
+  return $('#channel-container').attr('data-channel-id')
+
+isAlreadyNominated = (track)->
+  return nominatedTrackIds().includes(track.id)
+
+nominatedTrackIds = ()->
+  return $('#vote-results .track-card').map(()-> 
+    return $(this).attr('data-track-id')
+  ).get()
+
+addVote = (track)->
+  $card = $(getCardByTrackId(track.id))
+  currentVoteCount = parseInt($card.find('.vote-count').text())
+  $card.find('.vote-count').text(currentVoteCount + 1)
+
+getCardByTrackId = (id)->
+  return $("#vote-results .track-card[data-track-id='#{id}']")
+  # return $('#vote-results .track-card').filter(()->
+  #   return $(this).data('track-data').id == id
+  # )
+
+addVoteContainerTo = ($card)->
+  console.log($card)
+  $(voteContainerHtml()).insertBefore($card.find('.track-info'));
+
+$ ->
+  $('#search_track_form').on 'ajax:success', (data) ->
+    tracks = data.detail[0]
+    $('#search-results').empty()
+    $.each tracks, (i, track) ->
+      $card = $(trackCardHtml(track)).appendTo('#search-results')
+      $card.data('track-data', track)
+    return
+
+  $(document).on 'click', '#search-results .track-card', ->
+    trackData = $(this).data('track-data')
+    $.post(
+      window.location.pathname + '/vote',
+      {vote: trackData},
+      (result)->
+        console.log(result)
+    )
+    return
+
+  pusher = new Pusher(
+    '<%= ENV["pusher_key"] %>',
+    cluster: '<%= ENV["pusher_cluster"] %>'
+    encrypted: true
+  )
+  channel = pusher.subscribe(pusherChannel())
+  channel.bind 'new_vote', (track) ->
+
+    # Handle this server-side?
+    if isAlreadyNominated(track)
+      console.log 'already nominated!'
+      addVote(track)
+    else
+      $card = $(trackCardHtml(track)).appendTo('#vote-results')
+      $card.data('track-data', track)
+      addVoteContainerTo($card)
+      addVote(track)
+
+    return
+
+  return
+
+
+

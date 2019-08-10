@@ -1,0 +1,18 @@
+<p id="notice"><%= notice %></p>
+<div id="channel-container" data-channel-id="<%= @channel.id %>">
+  <div id="search-container">
+    <%= render partial: 'spotify_search'%>
+    <div id="search-results"></div>
+  </div>
+  <div id="vote-container">
+    <h1>In the running:</h1>
+    <div id="vote-results">
+      <% @current_votes.each do |track| %>
+        <%= render partial: 'track_card', locals: {track: track} %>
+      <% end %>
+    </div>
+  </div>
+  <div id="currently-playing-container">
+    <h1>Currently playing:</h1>
+  </div>
+</div>

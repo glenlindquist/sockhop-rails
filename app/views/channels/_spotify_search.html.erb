@@ -1,0 +1,4 @@
+<%= form_with(url: spotify_track_search_path, format: :json, remote: true, id: 'search_track_form', class: 'form-inline', ) do |form| %>
+  <%= form.text_field :track_title, id: 'spotify-search-input', class: 'form-control form-control-lg', placeholder: 'search for a track'%>
+  <%= form.submit class: 'btn btn-success mb-2' %>
+<% end %>

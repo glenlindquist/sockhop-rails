@@ -1,0 +1,32 @@
+<%= form_with(model: vote, remote: true, format: :json, id: 'add_vote') do |form| %>
+  <% if vote.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(vote.errors.count, "error") %> prohibited this vote from being saved:</h2>
+
+      <ul>
+      <% vote.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :song_title %>
+    <%= form.text_field :song_title, id: :vote_song_title %>
+  </div>
+
+  <div class="field">
+    <%= form.label :spotify_song_id %>
+    <%= form.text_field :spotify_song_id, id: :vote_spotify_song_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :voter_ip %>
+    <%= form.text_field :voter_ip, id: :vote_voter_ip %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

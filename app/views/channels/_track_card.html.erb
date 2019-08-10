@@ -1,0 +1,18 @@
+
+<div class="track-card" data-track-id="<%= track['id'] %>">
+  <img src='<%=track['image_med']['url']%>'>
+  <div class="btn vote-btn btn-success btn-xl">Vote</div>
+  <div class="vote-container">
+    <span>Votes</span>
+    <span class="vote-count"><%= track['vote_count'] %></span>
+  </div>
+  <div class="track-info">
+    <div class="track-name"><em>Track: </em><%=track['name']%></div>
+    <div class="track-artist"><em>Artist: </em><%=track['artist']%></div>
+    <div class="track-album-name"><em>Album: </em><%=track['album_name']%></div>
+    <div class="track-duration"><em><%=track['duration_readable']%></em></div>
+  </div>
+</div>
+
+
+
