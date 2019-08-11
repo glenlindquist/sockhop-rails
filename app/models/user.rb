@@ -21,7 +21,9 @@ class User < ApplicationRecord
   # == Class Methods ========================================================
   
   # == Instance Methods =====================================================
-  
+  def persist_spotify_data(data)
+    self.update(spotify_user_data: data)
+  end
   # == Private Instance Methods =============================================
   
 end

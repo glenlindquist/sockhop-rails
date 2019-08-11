@@ -38,9 +38,6 @@ addVote = (track)->
 
 getCardByTrackId = (id)->
   return $("#vote-results .track-card[data-track-id='#{id}']")
-  # return $('#vote-results .track-card').filter(()->
-  #   return $(this).data('track-data').id == id
-  # )
 
 addVoteContainerTo = ($card)->
   console.log($card)
@@ -83,6 +80,13 @@ $ ->
       addVoteContainerTo($card)
       addVote(track)
 
+    return
+  
+  channel.bind 'current_track', (track) ->
+    console.log( track )
+    if track
+      $('#current-track-results').empty()
+      $card = $(trackCardHtml(track)).appendTo('#current-track-results')
     return
 
   return

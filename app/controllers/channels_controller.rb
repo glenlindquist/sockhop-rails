@@ -4,7 +4,8 @@ class ChannelsController < ApplicationController
   before_action :authenticate_viewer, only: [:show, :vote, :search_track]
   before_action :authenticate_host, only: [:host]
   before_action :authenticate_user!, only: [:edit, :destroy]
-  before_action :check_user, except: [:show]
+  before_action :check_user, except: [:show, :vote, :search_track]
+  before_action :confirm_spotify_auth, only: [:host, :new]
 
   def index
     @channels = @user.channels
@@ -25,7 +26,6 @@ class ChannelsController < ApplicationController
   end
 
   def new
-    # auth spotify before beginning this.
     @channel = Channel.new
   end
 
@@ -41,6 +41,7 @@ class ChannelsController < ApplicationController
 
   def host
     @current_votes = VotingService.new(channel: @channel).get_current_votes
+    SpotifyHostService.host(user: current_user, channel: @channel)
   end
 
   # post /channel/:id/vote
@@ -59,7 +60,7 @@ class ChannelsController < ApplicationController
     respond_to do |format|
       @track_title = params[:track_title]
       result = SpotifySearchService.search(track_title: @track_title)
-      format.json {render json: result, status: :ok, location: @channel }
+      format.json {render json: result, status: :ok, location: channel_name_path(name: @channel.name)}
     end
   end
 
@@ -109,6 +110,13 @@ class ChannelsController < ApplicationController
 
     def set_user
       @user = User.find(params[:user_id])
+    end
+
+    def confirm_spotify_auth
+      return if current_user.spotify_user_data.present?
+      session['path_before_spotify_auth'] = request.env['PATH_INFO']
+      redirect_to '/auth/spotify'
+      return
     end
 
     def channel_params

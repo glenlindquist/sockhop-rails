@@ -9,7 +9,8 @@ Rails.application.routes.draw do
   # resources :channels
   get 'channels/:name', to: 'channels#show', as: 'channel_name'
   get 'channels/:name/host', to: 'channels#host', as: 'channel_host'
-  post 'channels/:id/vote', to: 'channels#vote'
+  post 'channels/:name/vote', to: 'channels#vote'
+  post 'channels/:name/host/vote', to: 'channels#vote'
   post 'channels/:id/track', to: 'channels#search_track', as: 'spotify_track_search'
 
   get 'join', to: 'channel_sessions#new', as: 'join_channel'
