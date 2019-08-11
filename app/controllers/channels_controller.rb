@@ -39,7 +39,7 @@ class ChannelsController < ApplicationController
   end
 
   def host
-
+    @current_votes = VotingService.new(channel: @channel).get_current_votes
   end
 
   # post /channel/:id/vote

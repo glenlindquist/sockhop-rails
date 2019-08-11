@@ -56,7 +56,7 @@ class VotingService
   def get_current_votes
     current_votes = @redis.get(@redis_key)
     if current_votes.blank?
-      []
+      return []
     else
       JSON.parse(current_votes).sort_by {|track| track['vote_count']}.reverse
     end
