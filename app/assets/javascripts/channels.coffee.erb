@@ -61,7 +61,7 @@ $ ->
       window.location.pathname + '/vote',
       {vote: trackData},
       (result)->
-        console.log(result)
+        return
     )
     return
 
@@ -72,7 +72,7 @@ $ ->
   )
   votesChannel = pusher.subscribe(pusherVotesChannel())
   votesChannel.bind 'new_vote', (track) ->
-
+    console.log('new vote!')
     # Handle this server-side?
     if isAlreadyNominated(track)
       console.log 'already nominated!'
@@ -87,6 +87,7 @@ $ ->
   
   currentTrackChannel = pusher.subscribe(pusherCurrentTrackChannel())
   currentTrackChannel.bind 'current_track', (track) ->
+    console.log('current track updated!')
     console.log( track )
     if !!track
       $('#current-track-results').empty()
