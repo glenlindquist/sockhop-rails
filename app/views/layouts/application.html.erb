@@ -9,18 +9,19 @@
   </head>
 
   <body>
-    <div id="nav">
-      <% if current_channel %>
-        <%= link_to current_channel.name, channel_path(current_channel) %> |
-        <%= link_to "Leave Channel", :logout, method: :post %>
+    <div>
+      <%= link_to 'home', '/' %> |
+      <% if user_signed_in? %>
+        <%= link_to current_user.email, current_user %> |
+        <%= link_to 'log out', destroy_user_session_path, method: "DELETE" %>
       <% else %>
-        <%= link_to "Create a Channel", new_channel_path %> |
-        <%= link_to "Join a Channel", :login %>
+        <%= link_to 'log in', new_user_session_path %> |
+        <%= link_to 'sign up', new_user_registration_path %>
       <% end %>
     </div>
     <div>
-      <p id="notice"><%= flash[:notice] %></p>
-      <p id="alert"><%= flash[:alert] %></p>
+      <p class="notice"><%= flash[:notice] %></p>
+      <p class="alert"><%= flash[:alert] %></p>
     </div>
     <%= yield %>
   </body>

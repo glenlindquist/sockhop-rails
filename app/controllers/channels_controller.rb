@@ -1,8 +1,8 @@
 class ChannelsController < ApplicationController
-  before_action :require_login, except: [:index, :new, :create]
+  # before_action :require_login, except: [:index, :new, :create]
   before_action :set_channel, except: [:create, :new, :index]
-  before_action :has_channel_privileges?, except: [:index, :create, :new]
-  before_action :require_logout, only: [:new, :create]
+  # before_action :has_channel_privileges?, except: [:index, :create, :new]
+  # before_action :require_logout, only: [:new, :create]
 
   def index
     @channel = Chanenel.new
@@ -38,7 +38,7 @@ class ChannelsController < ApplicationController
   end
 
   def host
-    
+
   end
 
   # post /channel/:id/vote

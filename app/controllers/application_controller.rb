@@ -1,9 +1,9 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  def current_channel
-    current_user
-  end
+  # def current_channel
+  #   current_user
+  # end
 
   def has_channel_privileges?
     @channel = Channel.find(params[:id])
