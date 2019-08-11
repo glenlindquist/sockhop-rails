@@ -14,6 +14,13 @@ class ChannelsController < ApplicationController
   def show
     redirect_to channel_host_path(name: @channel.name) if @channel.user == current_user
     @current_votes = VotingService.new(channel: @channel).get_current_votes
+
+    # eh could put this elsewhere
+    @current_track = Redis.new.get("#{@channel.id}_current_track")
+    @current_track = JSON.parse(@current_track) if @current_track
+    @current_track ||= {}
+    # /eh
+
   end
 
   def destroy
@@ -42,6 +49,10 @@ class ChannelsController < ApplicationController
   def host
     @current_votes = VotingService.new(channel: @channel).get_current_votes
     SpotifyHostService.host(user: current_user, channel: @channel)
+    # eh could put this elsewhere
+    @current_track = Redis.new.get("#{@channel.id}_current_track")
+    @current_track ||= {}
+    # /eh
   end
 
   # post /channel/:id/vote

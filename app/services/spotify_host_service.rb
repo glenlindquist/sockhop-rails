@@ -10,13 +10,14 @@ class SpotifyHostService
     @channel = options.fetch :channel
     @spotify_user = RSpotify::User.new(@user.spotify_user_data)
     @playlist_name = "sockhop-#{@channel_name}"
+    @redis = Redis.new
   end
 
   def host
     # init_playlist
     # clear_playlist
     # open_voting
-    broadcast_current_track
+    update_current_track
   end
 
   def init_playlist
@@ -45,14 +46,23 @@ class SpotifyHostService
 
   end
 
+  def update_current_track
+    persist_current_track
+    broadcast_current_track
+  end
+
+  def persist_current_track
+    @redis.set("#{@channel.id}_current_track", current_track.to_json)
+  end
+
   def broadcast_current_track
     channels_client = init_pusher
-    puts current_track.inspect
-    channels_client.trigger("#{@channel.id}", 'current_track', SpotifySearchService.format_track(current_track))
+    channels_client.trigger("#{@channel.id}_current_track", 'current_track',current_track)
   end
 
   def current_track
-    @spotify_user.player.currently_playing
+    #formats into more the key info for js to display.
+    SpotifySearchService.format_track(@spotify_user.player.currently_playing)
   end
 
 

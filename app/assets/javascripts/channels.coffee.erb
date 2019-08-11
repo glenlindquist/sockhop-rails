@@ -20,8 +20,11 @@ voteContainerHtml = () ->
   </div>
   """
 
-pusherChannel = ()->
-  return $('#channel-container').attr('data-channel-id')
+pusherVotesChannel = ()->
+  return $('#channel-container').attr('data-channel-id') + "_votes"
+
+pusherCurrentTrackChannel = ()->
+  return $('#channel-container').attr('data-channel-id') + "_current_track"
 
 isAlreadyNominated = (track)->
   return nominatedTrackIds().includes(track.id)
@@ -67,8 +70,8 @@ $ ->
     cluster: '<%= ENV["pusher_cluster"] %>'
     encrypted: true
   )
-  channel = pusher.subscribe(pusherChannel())
-  channel.bind 'new_vote', (track) ->
+  votesChannel = pusher.subscribe(pusherVotesChannel())
+  votesChannel.bind 'new_vote', (track) ->
 
     # Handle this server-side?
     if isAlreadyNominated(track)
@@ -82,9 +85,10 @@ $ ->
 
     return
   
-  channel.bind 'current_track', (track) ->
+  currentTrackChannel = pusher.subscribe(pusherCurrentTrackChannel())
+  currentTrackChannel.bind 'current_track', (track) ->
     console.log( track )
-    if track
+    if !!track
       $('#current-track-results').empty()
       $card = $(trackCardHtml(track)).appendTo('#current-track-results')
     return

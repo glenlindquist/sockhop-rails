@@ -50,7 +50,7 @@ class VotingService
 
   def broadcast_vote
     channels_client = init_pusher
-    channels_client.trigger("#{@channel.id}", 'new_vote', @new_vote)
+    channels_client.trigger("#{@channel.id}_votes", 'new_vote', @new_vote)
   end
 
   def get_current_votes

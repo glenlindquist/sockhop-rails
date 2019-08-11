@@ -14,7 +14,7 @@
   <div id="current-track-container">
     <h1>currently playing:</h1>
     <div id="current-track-results">
-
+      <%= render partial: 'track_card', locals: {track: @current_track} %>
     </div>
     <h1>up next:</h1>
     <div id="up-next-results">
