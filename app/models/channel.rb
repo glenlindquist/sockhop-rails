@@ -7,7 +7,8 @@ class Channel < ApplicationRecord
   has_secure_password
   
   # == Relationships ========================================================
-  
+  belongs_to :user
+
   # == Validations ==========================================================
   validates :name, presence: true, uniqueness: true
 

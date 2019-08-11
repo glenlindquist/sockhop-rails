@@ -1,4 +1,12 @@
 <h1>your stuff</h1>
-<%= @user.email %>
-<h1>edit/delete account info</h1>
+<h3>your channels</h3>
+
+<% if @channels.any? %>
+  <%= render 'shared/channel_list_table' %>
+<% else %>
+  No channels
+<% end %>
+<br>
+
+<h3>your account info</h3>
 <%= link_to 'edit/delete', edit_user_registration_path %>
