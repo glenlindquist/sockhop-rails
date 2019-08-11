@@ -3,8 +3,11 @@ Rails.application.routes.draw do
   root to: 'static_pages#home'
 
   get 'users/:id', to: 'users#show', as: 'user'
-
-  resources :channels
+  resources :users do
+    resources :channels
+  end
+  # resources :channels
+  get 'channels/:name', to: 'channels#show', as: 'channel_name'
   get 'channels/:id/host', to: 'channels#host', as: 'channel_host'
   post 'channels/:id/vote', to: 'channels#vote'
   post 'channels/:id/track', to: 'channels#search_track', as: 'spotify_track_search'

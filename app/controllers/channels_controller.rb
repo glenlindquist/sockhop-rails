@@ -1,16 +1,16 @@
 class ChannelsController < ApplicationController
-  # before_action :require_login, except: [:index, :new, :create]
   before_action :set_channel, except: [:create, :new, :index]
-  before_action :authenticate_viewer, only: [:show]
-  # before_action :has_channel_privileges?, except: [:index, :create, :new]
-  # before_action :require_logout, only: [:new, :create]
+  before_action :set_user, only: [:index, :new, :edit, :create, :update, :destroy]
+  before_action :authenticate_viewer, only: [:show, :vote, :search_track]
+  before_action :authenticate_host, only: [:host]
+  before_action :authenticate_user!, only: [:edit, :destroy]
 
   def index
-    @channel = Channel.new
-    @channels = Channel.all
+    @channels = @user.channels
   end
 
   def show
+    redirect_to channel_host_path(@channel) if @channel.user == current_user
     @current_votes = VotingService.new(channel: @channel).get_current_votes
   end
 
@@ -29,17 +29,17 @@ class ChannelsController < ApplicationController
   end
 
   def create
-    @channel = Channel.create(channel_params)
+    @channel = @user.channels.create(channel_params)
     if @channel.persisted?
       join_channel!
-      redirect_to channels_path(@channel), notice: 'channel created'
+      redirect_to channel_host_path(@channel), notice: 'channel created'
     else
       render 'new'
     end
   end
 
   def host
-
+    @current_votes = VotingService.new(channel: @channel).get_current_votes
   end
 
   # post /channel/:id/vote
@@ -64,9 +64,18 @@ class ChannelsController < ApplicationController
 
   private
     def authenticate_viewer
-      channel = Channel.find(params[:id])
+      channel = Channel.find(params[:id]) if params[:id] 
+      channel = Channel.find_by(name: params[:name]) if params[:name]
       if session[:channel_id] != channel.id
         redirect_to join_channel_path, alert: 'log in to channel to view'
+      end
+    end
+
+    def authenticate_host
+      channel = Channel.find(params[:id]) if params[:id] 
+      channel = Channel.find_by(name: params[:name]) if params[:name]
+      if channel.user != current_user
+        redirect_to channel_name_path(name: channel.name), alert: 'unauthorized action'
       end
     end
 
@@ -79,7 +88,12 @@ class ChannelsController < ApplicationController
     end
 
     def set_channel
-      @channel = Channel.find(params[:id])
+      @channel = Channel.find(params[:id]) if params[:id] 
+      @channel ||= Channel.find_by(name: params[:name]) if params[:name]
+    end
+
+    def set_user
+      @user = User.find(params[:user_id])
     end
 
     def channel_params
