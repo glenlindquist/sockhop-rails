@@ -58,7 +58,7 @@ class VotingService
     if current_votes.blank?
       []
     else
-      JSON.parse(current_votes).sort_by {|track| -track['vote_count']}
+      JSON.parse(current_votes).sort_by {|track| track['vote_count']}.reverse
     end
   end
 

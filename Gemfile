@@ -34,17 +34,6 @@ gem 'jbuilder', '~> 2.5'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-
-gem 'bootstrap', '~> 4.1.0'
-gem 'jquery-rails'
-gem 'pusher'
-gem 'figaro'
-gem 'chartkick'
-gem 'redis', '~>4.0'
-
-gem 'rspotify', '~>2.6.0'
-
-
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
@@ -64,3 +53,12 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+gem 'bootstrap', '~> 4.1.0'
+gem 'jquery-rails', '~> 4.3.5'
+gem 'pusher', '~>1.3.3'
+gem 'figaro', '~>1.1.1'
+gem 'redis', '~>4.0'
+gem 'rspotify', '~>2.6.0'
+gem 'sorcery', '~>0.14.0'
+gem 'faraday', '~>0.15.4'

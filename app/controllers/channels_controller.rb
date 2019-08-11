@@ -1,61 +1,44 @@
 class ChannelsController < ApplicationController
-
+  before_action :require_login, except: [:index, :new, :create]
   before_action :set_channel, except: [:create, :new, :index]
+  before_action :has_channel_privileges?, except: [:index, :create, :new]
+  before_action :require_logout, only: [:new, :create]
 
   def index
     @channel = Chanenel.new
     @channels = Channel.all
   end
 
-
   def show
     @current_votes = VotingService.new(channel: @channel).get_current_votes
   end
 
+  def destroy
+    logout if logged_in?
+    @channel.destroy
+    respond_to do |format|
+      format.html { redirect_to '/', notice: 'channel shut down' }
+      format.json { head :no_content }
+    end
+  end
 
   def new
+    # auth spotify before beginning this.
     @channel = Channel.new
   end
 
-
-  def edit
-  end
-
-
   def create
-    @channel = Channel.new(channel_params)
-
-    respond_to do |format|
-      if @channel.save
-        format.html { redirect_to @channel, notice: 'Channel was successfully created.' }
-        format.json { render :show, status: :created, location: @channel }
-      else
-        format.html { render :new }
-        format.json { render json: @channel.errors, status: :unprocessable_entity }
-      end
+    @channel = Channel.create(channel_params)
+    if @channel.persisted?
+      auto_login(@channel)
+      redirect_to(channel_host_path(@channel), notice: 'channel created')
+    else
+      redirect_to new_channel_path, alert: @channel.errors.full_messages
     end
   end
 
-
-  def update
-    respond_to do |format|
-      if @channel.update(channel_params)
-        format.html { redirect_to @channel, notice: 'Channel was successfully updated.' }
-        format.json { render :show, status: :ok, location: @channel }
-      else
-        format.html { render :edit }
-        format.json { render json: @channel.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-
-  def destroy
-    @channel.destroy
-    respond_to do |format|
-      format.html { redirect_to channels_url, notice: 'Channel was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+  def host
+    
   end
 
   # post /channel/:id/vote
@@ -73,7 +56,7 @@ class ChannelsController < ApplicationController
   def search_track
     respond_to do |format|
       @track_title = params[:track_title]
-      result = SpotifyService.search(track_title: @track_title)
+      result = SpotifySearchService.search(track_title: @track_title)
       format.json {render json: result, status: :ok, location: @channel }
     end
   end
@@ -86,7 +69,7 @@ class ChannelsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def channel_params
-      params.require(:channel).permit(:name)
+      params.require(:channel).permit(:name, :password, :password_confirmation)
     end
 
     def vote_params

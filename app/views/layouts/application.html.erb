@@ -9,6 +9,19 @@
   </head>
 
   <body>
+    <div id="nav">
+      <% if current_channel %>
+        <%= link_to current_channel.name, channel_path(current_channel) %> |
+        <%= link_to "Leave Channel", :logout, method: :post %>
+      <% else %>
+        <%= link_to "Create a Channel", new_channel_path %> |
+        <%= link_to "Join a Channel", :login %>
+      <% end %>
+    </div>
+    <div>
+      <p id="notice"><%= flash[:notice] %></p>
+      <p id="alert"><%= flash[:alert] %></p>
+    </div>
     <%= yield %>
   </body>
 </html>

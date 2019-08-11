@@ -10,21 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190809143318) do
+ActiveRecord::Schema.define(version: 20190811020401) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "channels", force: :cascade do |t|
-    t.string "name"
-  end
-
-  create_table "votes", force: :cascade do |t|
-    t.string "song_title"
-    t.string "spotify_song_id"
-    t.string "voter_ip"
+    t.string "name", null: false
+    t.string "crypted_password"
+    t.string "salt"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_channels_on_name", unique: true
   end
 
 end

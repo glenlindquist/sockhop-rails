@@ -1,6 +1,6 @@
 require 'rspotify'
 
-class SpotifyService
+class SpotifySearchService
 
   def self.search(options)
     self.new(options).search
@@ -9,7 +9,6 @@ class SpotifyService
   def initialize(options)
     @track_title = options.fetch(:track_title)
     RSpotify::authenticate(ENV['spotify_client_id'], ENV['spotify_client_secret'])
-
   end
 
   def search
