@@ -1,11 +1,12 @@
 class ChannelsController < ApplicationController
   # before_action :require_login, except: [:index, :new, :create]
   before_action :set_channel, except: [:create, :new, :index]
+  before_action :authenticate_viewer, only: [:show]
   # before_action :has_channel_privileges?, except: [:index, :create, :new]
   # before_action :require_logout, only: [:new, :create]
 
   def index
-    @channel = Chanenel.new
+    @channel = Channel.new
     @channels = Channel.all
   end
 
@@ -14,7 +15,7 @@ class ChannelsController < ApplicationController
   end
 
   def destroy
-    logout if logged_in?
+    leave_channel!
     @channel.destroy
     respond_to do |format|
       format.html { redirect_to '/', notice: 'channel shut down' }
@@ -30,10 +31,10 @@ class ChannelsController < ApplicationController
   def create
     @channel = Channel.create(channel_params)
     if @channel.persisted?
-      auto_login(@channel)
-      redirect_to(channel_host_path(@channel), notice: 'channel created')
+      join_channel!
+      redirect_to channels_path(@channel), notice: 'channel created'
     else
-      redirect_to new_channel_path, alert: @channel.errors.full_messages
+      render 'new'
     end
   end
 
@@ -62,12 +63,25 @@ class ChannelsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+    def authenticate_viewer
+      channel = Channel.find(params[:id])
+      if session[:channel_id] != channel.id
+        redirect_to join_channel_path, alert: 'log in to channel to view'
+      end
+    end
+
+    def join_channel!
+      session[:channel_id] = @channel.id
+    end
+
+    def leave_channel!
+      session[:channel_id] = nil
+    end
+
     def set_channel
       @channel = Channel.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def channel_params
       params.require(:channel).permit(:name, :password, :password_confirmation)
     end

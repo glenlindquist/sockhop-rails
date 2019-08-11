@@ -1,23 +1,22 @@
 class ChannelSessionsController < ApplicationController
-  before_action :require_login, except: [:new, :create]
-
+  
   def new
-    @channel = Channel.new
   end
 
   def create
-    @channel = login(params[:name], params[:password])
-
-    if @channel
-      redirect_to @channel, notice: "welcome to the party"
+    channel = Channel.find_by_name(params[:name])
+    if channel && channel.authenticate(params[:password])
+      session[:channel_id] = channel.id
+      redirect_to channels_path(channel), notice: "welcome!"
     else
-      flash.now[:alert] = "login failed"
-      render action: 'new'
+      flash.now[:alert] = "name or password invalid"
+      render 'new'
     end
   end
 
   def destroy
-    logout
-    redirect_to '/', notice: 'bye!'
+    session[:channel_id] = nil
+    redirect_to root_url, 'come again soon!'
   end
+
 end

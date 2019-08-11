@@ -1,2 +1,13 @@
 <h1>Sockhop</h1>
 <%= link_to 'Sign in with Spotify', '/auth/spotify' %>
+<% if user_signed_in? %>
+  <div>
+    <% if current_channel %>
+      <%= link_to "back to channel: #{current_channel.name}", channel_path(current_channel) %> |
+      <%= link_to "join a different channel", join_channel_path %> |
+    <% else %>
+      <%= link_to "join a channel", join_channel_path %> |
+    <% end %>
+    <%=link_to "create a channel", new_channel_path %>
+  </div>
+<% end %>

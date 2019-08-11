@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   post 'channels/:id/vote', to: 'channels#vote'
   post 'channels/:id/track', to: 'channels#search_track', as: 'spotify_track_search'
 
+  get 'join', to: 'channel_sessions#new', as: 'join_channel'
+  get 'leave', to: 'channel_sessions#destroy', as: 'leave_channel'
   resources :channel_sessions, only: [:new, :create, :destroy]
   # get 'login' => 'channel_sessions#new', :as => :login
   # post 'logout' => 'channel_sessions#destroy', :as => :logout

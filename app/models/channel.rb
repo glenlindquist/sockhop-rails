@@ -4,16 +4,19 @@ class Channel < ApplicationRecord
   # == Attributes ===========================================================
   
   # == Extensions ===========================================================
+  has_secure_password
   
   # == Relationships ========================================================
   
   # == Validations ==========================================================
-  validates :name, uniqueness: true
+  validates :name, presence: true, uniqueness: true
+
   # == Scopes ===============================================================
   
   # == Callbacks ============================================================
   after_create :init_redis
   after_destroy :clear_redis
+
   # == Class Methods ========================================================
   
   # == Instance Methods =====================================================
