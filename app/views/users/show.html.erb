@@ -5,6 +5,8 @@
   <%= render 'shared/channel_list_table' %>
 <% else %>
   No channels
+  <br>
+  <%= link_to 'create a channel', new_user_channel_path(@user) %>
 <% end %>
 <br>
 

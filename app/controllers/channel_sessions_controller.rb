@@ -7,7 +7,7 @@ class ChannelSessionsController < ApplicationController
     channel = Channel.find_by_name(params[:name])
     if channel && channel.authenticate(params[:password])
       session[:channel_id] = channel.id
-      redirect_to channels_path(channel), notice: "welcome!"
+      redirect_to channel_name_path(name: channel.name), notice: "welcome!"
     else
       flash.now[:alert] = "name or password invalid"
       render 'new'

@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   end
   # resources :channels
   get 'channels/:name', to: 'channels#show', as: 'channel_name'
-  get 'channels/:id/host', to: 'channels#host', as: 'channel_host'
+  get 'channels/:name/host', to: 'channels#host', as: 'channel_host'
   post 'channels/:id/vote', to: 'channels#vote'
   post 'channels/:id/track', to: 'channels#search_track', as: 'spotify_track_search'
 

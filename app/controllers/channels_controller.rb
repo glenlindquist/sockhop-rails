@@ -4,13 +4,14 @@ class ChannelsController < ApplicationController
   before_action :authenticate_viewer, only: [:show, :vote, :search_track]
   before_action :authenticate_host, only: [:host]
   before_action :authenticate_user!, only: [:edit, :destroy]
+  before_action :check_user, except: [:show]
 
   def index
     @channels = @user.channels
   end
 
   def show
-    redirect_to channel_host_path(@channel) if @channel.user == current_user
+    redirect_to channel_host_path(name: @channel.name) if @channel.user == current_user
     @current_votes = VotingService.new(channel: @channel).get_current_votes
   end
 
@@ -32,7 +33,7 @@ class ChannelsController < ApplicationController
     @channel = @user.channels.create(channel_params)
     if @channel.persisted?
       join_channel!
-      redirect_to channel_host_path(@channel), notice: 'channel created'
+      redirect_to channel_host_path(name: @channel.name), notice: 'channel created'
     else
       render 'new'
     end
@@ -64,19 +65,33 @@ class ChannelsController < ApplicationController
 
   private
     def authenticate_viewer
-      channel = Channel.find(params[:id]) if params[:id] 
-      channel = Channel.find_by(name: params[:name]) if params[:name]
-      if session[:channel_id] != channel.id
+      set_channel
+
+      if @channel.blank?
+        redirect_to('/', notice: 'no channel found') 
+        return
+      end
+
+      if session[:channel_id] != @channel.id
         redirect_to join_channel_path, alert: 'log in to channel to view'
       end
     end
 
     def authenticate_host
-      channel = Channel.find(params[:id]) if params[:id] 
-      channel = Channel.find_by(name: params[:name]) if params[:name]
-      if channel.user != current_user
-        redirect_to channel_name_path(name: channel.name), alert: 'unauthorized action'
+      set_channel
+      
+      if @channel.blank?
+        redirect_to('/', notice: 'no channel found') 
+        return
       end
+
+      if @channel.user != current_user
+        redirect_to channel_name_path(name: @channel.name), alert: 'unauthorized action'
+      end
+
+      @user = @channel.user
+      join_channel!
+
     end
 
     def join_channel!
@@ -88,7 +103,7 @@ class ChannelsController < ApplicationController
     end
 
     def set_channel
-      @channel = Channel.find(params[:id]) if params[:id] 
+      @channel ||= Channel.find(params[:id]) if params[:id] 
       @channel ||= Channel.find_by(name: params[:name]) if params[:name]
     end
 

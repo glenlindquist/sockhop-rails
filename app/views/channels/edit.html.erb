@@ -2,5 +2,5 @@
 
 <%= render 'form', channel: @channel %>
 
-<%= link_to 'go to channel', channel_host_path(@channel) %> |
+<%= link_to 'go to channel', channel_host_path(name: @channel.name) %> |
 <%= link_to 'all channels', user_channels_path %>
