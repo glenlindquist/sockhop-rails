@@ -9,13 +9,13 @@ class SpotifyHostService
     @user = options.fetch :user
     @channel = options.fetch :channel
     @spotify_user = RSpotify::User.new(@user.spotify_user_data)
-    @playlist_name = "sockhop-#{@channel_name}"
+    @playlist_name = "sockhop-#{@channel.name}"
     @redis = Redis.new
   end
 
   def host
-    # init_playlist
-    # clear_playlist
+    init_playlist
+    clear_playlist
     # open_voting
     update_current_track
   end
@@ -27,19 +27,25 @@ class SpotifyHostService
   def get_or_create_playlist
     offset = 0
     loop do
-      set = @spotify_user.playlists(limit: 50, offset: offset)
-      match = set.find{|playlist| playlist.name == @playlist.name}
+      # can only grab 50 playlists / request.
+      # keep polling until all playlists have been checked.
+
+      # puts "checking for playlists"
+      playlists = @spotify_user.playlists(limit: 50, offset: offset)
+      # puts "results[0]: #{results[0].inspect}"
+      # puts "length: #{results.length}"
+      match = playlists.find{|playlist| playlist.name == @playlist_name}
       return match if match.present?
 
       offset += 50
       break if offset > 100000
-      break if set.count < 50
+      break if playlists.length < 50
     end
     @spotify_user.create_playlist!(@playlist_name, public: true)
   end
 
   def clear_playlist
-    @playlist.replace_tracks!
+    @playlist.replace_tracks!([])
   end
 
   def open_voting
@@ -62,6 +68,7 @@ class SpotifyHostService
 
   def current_track
     #formats into more the key info for js to display.
+    return {} if @spotify_user.player.blank?
     SpotifySearchService.format_track(@spotify_user.player.currently_playing)
   end
 
