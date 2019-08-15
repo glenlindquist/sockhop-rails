@@ -1,3 +1,4 @@
+#############
 trackCardHtml = (track) ->
   return """
     <div class="track-card" data-track-id="#{track.id}">
@@ -44,7 +45,19 @@ addVoteContainerTo = ($card)->
   console.log($card)
   $(voteContainerHtml()).insertBefore($card.find('.track-info'));
 
+
+####
+
+class App.Channels
+  constructor: () ->
+    # intialize some stuff
+
+  render: ->
+    # do some stuff
+
 $ ->
+  return unless $(".channels.show").length > 0 || $(".channels.host").length > 0
+
   $('#search_track_form').on 'ajax:success', (data) ->
     tracks = data.detail[0]
     $('#search-results').empty()
@@ -65,11 +78,18 @@ $ ->
 
   pusher = new Pusher(
     '<%= ENV["pusher_key"] %>',
-    cluster: '<%= ENV["pusher_cluster"] %>'
-    encrypted: true
+    cluster: '<%= ENV["pusher_cluster"] %>',
+    encrypted: true,
+    authEndpoint: '/pusher/auth',
+    auth: {
+      headers: {
+        'X-CSRF-Token': FORM_AUTH_TOKEN
+      }
+    }
   )
  
   channel = pusher.subscribe(pusherChannel())
+  presenceChannel = pusher.subscribe("presence-#{pusherChannel()}")
 
   channel.bind 'new_vote', (track) ->
     console.log('new vote!')
@@ -92,10 +112,26 @@ $ ->
       $card = $(trackCardHtml(track)).appendTo('#current-track-results')
     return
 
-  # to determine if host is still online
-  presenceChannel = pusher.subscribe(presenceChannelName);
+  presenceChannel.bind 'pusher:member_removed', (member) ->
+    console.log member
+    if member.info.is_host
+      console.log 'host left!'
+      # send request to kill host worker
+    else
+      console.log 'voter left!'
+      # send request to reduce viewer count?
+    return
+
+  presenceChannel.bind 'pusher:member_added', (member) ->
+    console.log member
+    if member.info.is_host
+      console.log 'host joined!'
+      # send request to kill host worker
+    else
+      console.log 'voter joined!'
+      # send request to reduce viewer count?
+    return
+
+  
 
   return
-
-
-

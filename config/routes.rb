@@ -20,5 +20,5 @@ Rails.application.routes.draw do
   # post 'logout' => 'channel_sessions#destroy', :as => :logout
 
   get 'auth/spotify/callback', to: 'spotify_auth#auth_callback'
-
+  post 'pusher/auth', to: 'pusher#auth'
 end

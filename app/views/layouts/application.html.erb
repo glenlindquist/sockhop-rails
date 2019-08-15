@@ -3,12 +3,13 @@
   <head>
     <title>SockhopRails</title>
     <%= csrf_meta_tags %>
+    <%= javascript_tag "var FORM_AUTH_TOKEN = '#{form_authenticity_token}';" if protect_against_forgery? %>
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
   </head>
 
-  <body>
+  <body class="<%= controller_name %> <%= action_name%>">
     <div>
       <%= link_to 'home', '/' %> |
       <% if user_signed_in? %>
