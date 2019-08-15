@@ -21,4 +21,6 @@ Rails.application.routes.draw do
 
   get 'auth/spotify/callback', to: 'spotify_auth#auth_callback'
   post 'pusher/auth', to: 'pusher#auth'
+  post 'pusher/presence_webhook', to: 'pusher#presence_webhook'
+  post 'pusher/presence_channel', to: 'pusher#presence_webhook'
 end
