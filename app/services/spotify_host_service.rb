@@ -23,6 +23,12 @@ class SpotifyHostService
     update_current_track
 
     # TODO: Implement w/ sidekiq
+    worker = HostWorker.perform_async(
+      spotify_user_hash: @spotify_user.to_hash,
+      channel_id: @channel.id
+    )
+    
+    @channel.update(current_jid: worker)
     # @current_track_poller = CurrentTrackPoller.perform(@spotify_user, @channel)
     # TODO: ON EXIT!
     # @current_track_poller.cancel!
@@ -70,7 +76,7 @@ class SpotifyHostService
 
   def broadcast_current_track
     channels_client = init_pusher
-    channels_client.trigger(@channel.name, 'current_track',current_track)
+    channels_client.trigger(@channel.name, 'current_track', current_track)
   end
 
   def current_track

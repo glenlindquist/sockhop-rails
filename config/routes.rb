@@ -1,4 +1,8 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
+  mount Sidekiq::Web => '/sidekiq'
+
   devise_for :users
   root to: 'static_pages#home'
 
@@ -22,5 +26,4 @@ Rails.application.routes.draw do
   get 'auth/spotify/callback', to: 'spotify_auth#auth_callback'
   post 'pusher/auth', to: 'pusher#auth'
   post 'pusher/presence_webhook', to: 'pusher#presence_webhook'
-  post 'pusher/presence_channel', to: 'pusher#presence_webhook'
 end

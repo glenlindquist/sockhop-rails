@@ -116,20 +116,20 @@ $ ->
     console.log member
     if member.info.is_host
       console.log 'host left!'
-      # send request to kill host worker
+      $('body').css('background-color', 'lightpink')
     else
       console.log 'voter left!'
-      # send request to reduce viewer count?
+      # decrease viewer count?
     return
 
   presenceChannel.bind 'pusher:member_added', (member) ->
     console.log member
     if member.info.is_host
       console.log 'host joined!'
-      # send request to kill host worker
+      $('body').css('background-color', 'white')
     else
       console.log 'voter joined!'
-      # send request to reduce viewer count?
+      # increase viewer count?
     return
 
   

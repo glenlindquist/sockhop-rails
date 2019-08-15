@@ -25,6 +25,7 @@ class PusherController < ApplicationController
     activity = event[:name]
     if activity == "member_removed" && channel.user == user
       puts "host left!"
+      HostWorker.cancel!(channel.current_jid)
       # shut down host worker
     end
     render json: event, status: :ok
