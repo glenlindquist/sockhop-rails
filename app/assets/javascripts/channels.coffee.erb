@@ -20,11 +20,9 @@ voteContainerHtml = () ->
   </div>
   """
 
-pusherVotesChannel = ()->
-  return $('#channel-container').attr('data-channel-id') + "_votes"
+pusherChannel = ()->
+  return $('#channel-container').attr('data-channel-name')
 
-pusherCurrentTrackChannel = ()->
-  return $('#channel-container').attr('data-channel-id') + "_current_track"
 
 isAlreadyNominated = (track)->
   return nominatedTrackIds().includes(track.id)
@@ -70,8 +68,10 @@ $ ->
     cluster: '<%= ENV["pusher_cluster"] %>'
     encrypted: true
   )
-  votesChannel = pusher.subscribe(pusherVotesChannel())
-  votesChannel.bind 'new_vote', (track) ->
+ 
+  channel = pusher.subscribe(pusherChannel())
+
+  channel.bind 'new_vote', (track) ->
     console.log('new vote!')
     # Handle this server-side?
     if isAlreadyNominated(track)
@@ -82,17 +82,18 @@ $ ->
       $card.data('track-data', track)
       addVoteContainerTo($card)
       addVote(track)
-
     return
   
-  # currentTrackChannel = pusher.subscribe(pusherCurrentTrackChannel())
-  # currentTrackChannel.bind 'current_track', (track) ->
-  #   console.log('current track updated!')
-  #   console.log( track )
-  #   if !!track
-  #     $('#current-track-results').empty()
-  #     $card = $(trackCardHtml(track)).appendTo('#current-track-results')
-  #   return
+  channel.bind 'current_track', (track) ->
+    console.log('current track updated!')
+    console.log( track )
+    if !!track
+      $('#current-track-results').empty()
+      $card = $(trackCardHtml(track)).appendTo('#current-track-results')
+    return
+
+  # to determine if host is still online
+  presenceChannel = pusher.subscribe(presenceChannelName);
 
   return
 

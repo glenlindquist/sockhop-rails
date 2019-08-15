@@ -12,7 +12,7 @@ class VotingService
   def self.clear_votes(options={})
     redis = Redis.new
     channel = options[:channel]
-    redis_key = "#{channel.id}_votes"
+    redis_key = "#{channel.name}_votes"
     redis.set(redis_key, [].to_json)
   end
 
@@ -20,7 +20,7 @@ class VotingService
     @redis = Redis.new
     @channel = options[:channel]
     @new_vote = options[:vote]
-    @redis_key = "#{@channel.id}_votes"
+    @redis_key = "#{@channel.name}_votes"
     return {error: "no channel found"} if @channel.blank?
     return {error: "no vote sent"} if @new_vote.blank?
   end
@@ -50,7 +50,7 @@ class VotingService
 
   def broadcast_vote
     channels_client = init_pusher
-    channels_client.trigger("#{@channel.id}_votes", 'new_vote', @new_vote)
+    channels_client.trigger(@channel.name, 'new_vote', @new_vote)
   end
 
   def get_current_votes

@@ -1,6 +1,9 @@
 require 'rspotify'
 
 class SpotifyHostService
+
+  attr_reader :playlist
+
   def self.host(options)
     self.new(options).host
   end
@@ -15,9 +18,16 @@ class SpotifyHostService
 
   def host
     init_playlist
-    clear_playlist
+    # clear_playlist
     # open_voting
     update_current_track
+
+    # TODO: Implement w/ sidekiq
+    # @current_track_poller = CurrentTrackPoller.perform(@spotify_user, @channel)
+    # TODO: ON EXIT!
+    # @current_track_poller.cancel!
+
+    self
   end
 
   def init_playlist
@@ -30,15 +40,12 @@ class SpotifyHostService
       # can only grab 50 playlists / request.
       # keep polling until all playlists have been checked.
 
-      # puts "checking for playlists"
       playlists = @spotify_user.playlists(limit: 50, offset: offset)
-      # puts "results[0]: #{results[0].inspect}"
-      # puts "length: #{results.length}"
       match = playlists.find{|playlist| playlist.name == @playlist_name}
       return match if match.present?
 
       offset += 50
-      break if offset > 100000
+      break if offset >= 100000
       break if playlists.length < 50
     end
     @spotify_user.create_playlist!(@playlist_name, public: true)
@@ -58,12 +65,12 @@ class SpotifyHostService
   end
 
   def persist_current_track
-    @redis.set("#{@channel.id}_current_track", current_track.to_json)
+    @redis.set("#{@channel.name}_current_track", current_track.to_json)
   end
 
   def broadcast_current_track
     channels_client = init_pusher
-    channels_client.trigger("#{@channel.id}_current_track", 'current_track',current_track)
+    channels_client.trigger(@channel.name, 'current_track',current_track)
   end
 
   def current_track

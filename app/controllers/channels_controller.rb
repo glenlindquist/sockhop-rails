@@ -16,7 +16,7 @@ class ChannelsController < ApplicationController
     @current_votes = VotingService.new(channel: @channel).get_current_votes
 
     # eh could put this elsewhere
-    @current_track = Redis.new.get("#{@channel.id}_current_track")
+    @current_track = Redis.new.get("#{@channel.name}_current_track")
     @current_track = JSON.parse(@current_track) if @current_track
     @current_track ||= {}
     # /eh
@@ -48,14 +48,17 @@ class ChannelsController < ApplicationController
 
   def host
     @current_votes = VotingService.new(channel: @channel).get_current_votes
-    SpotifyHostService.host(user: current_user, channel: @channel)
-
+    host = SpotifyHostService.host(user: current_user, channel: @channel)
+    @playlist_url = host.playlist.external_urls["spotify"]
+    puts '#****#*#**#'
+    puts host.playlist.inspect
     # eh could put this elsewhere
-    @current_track = Redis.new.get("#{@channel.id}_current_track")
+    @current_track = Redis.new.get("#{@channel.name}_current_track")
     @current_track = JSON.parse(@current_track) if @current_track
     @current_track ||= {}
+  
     # /eh
-    
+
   end
 
   # post /channel/:id/vote
@@ -87,7 +90,7 @@ class ChannelsController < ApplicationController
         return
       end
 
-      if session[:channel_id] != @channel.id
+      if session[:channel_name] != @channel.name
         redirect_to join_channel_path, alert: 'log in to channel to view'
       end
     end
@@ -110,11 +113,11 @@ class ChannelsController < ApplicationController
     end
 
     def join_channel!
-      session[:channel_id] = @channel.id
+      session[:channel_name] = @channel.name
     end
 
     def leave_channel!
-      session[:channel_id] = nil
+      session[:channel_name] = nil
     end
 
     def set_channel

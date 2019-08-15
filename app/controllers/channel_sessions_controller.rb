@@ -6,7 +6,7 @@ class ChannelSessionsController < ApplicationController
   def create
     channel = Channel.find_by_name(params[:name])
     if channel && channel.authenticate(params[:password])
-      session[:channel_id] = channel.id
+      session[:channel_name] = channel.name
       redirect_to channel_name_path(name: channel.name), notice: "welcome!"
     else
       flash.now[:alert] = "name or password invalid"
@@ -15,7 +15,7 @@ class ChannelSessionsController < ApplicationController
   end
 
   def destroy
-    session[:channel_id] = nil
+    session[:channel_name] = nil
     redirect_to root_url, 'come again soon!'
   end
 

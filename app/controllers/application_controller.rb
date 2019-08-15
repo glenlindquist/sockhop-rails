@@ -3,8 +3,8 @@ class ApplicationController < ActionController::Base
   helper_method :current_channel
 
   def current_channel
-    if session[:channel_id]
-      @current_channel ||= Channel.find_by(id: session[:channel_id])
+    if session[:channel_name]
+      @current_channel ||= Channel.find_by(name: session[:channel_name])
     else
       @current_channel = nil
     end
