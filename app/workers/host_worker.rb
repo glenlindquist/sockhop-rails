@@ -4,21 +4,34 @@ class HostWorker
   include Sidekiq::Worker
   def perform(options)
     @spotify_user = RSpotify::User.new(options["spotify_user_hash"])
-    @most_recent_track_id = ""
+    @current_track = SpotifyUtilities::current_track(spotify_user: @spotify_user)
     @channel = Channel.find(options["channel_id"])
+    @playlist = RSpotify::Playlist.find_by_id(options["playlist_id"])
+    @cooldown = options.fetch("cooldown", 15000) # 15 seconds
+
     loop do
       break if cancelled?
       # a bit dangerous... add some sort of time out
+      player = @spotify_user.player
 
-      if @spotify_user.player && @spotify_user.player.currently_playing
-        current_track = @spotify_user.player.currently_playing
-        broadcast_current_track if @most_recent_track_id != current_track.id
-        @most_recent_track_id = current_track.id
+      if player
+        new_track = SpotifyUtilities::current_track(player: player)
+        if new_track[:id] != @current_track[:id]
+          @current_track = new_track
+          register_track_change
+        end
+        remaining_ms = new_track[:duration_ms] - player.progress
 
-        puts @spotify_user.player.currently_playing.name
+        if remaining_ms <= @cooldown
+          handle_winner
+        end
+
+        puts @current_track[:name]
+        puts "Time Remaining: #{SpotifyUtilities::readable_duration(remaining_ms)}"
       else
         puts "Player not open"
       end
+
       sleep 10
     end
   end
@@ -26,33 +39,43 @@ class HostWorker
   def cancelled?
     Sidekiq.redis {|c| c.exists("cancelled-#{jid}") }
   end
-
-  # Duplicates stuff already in host service.. how best to refactor?
-  def broadcast_current_track
-    channels_client = init_pusher
-    channels_client.trigger(@channel.name, 'current_track', current_track)
+  
+  def register_track_change
+    PusherUtilities::broadcast_current_track(@channel.name, @current_track)
+    RedisUtilities::change_current_track(@channel.name, @current_track)
+    restart_voting
   end
 
-  def current_track
-    #formats into more the key info for js to display.
-    return {} if @spotify_user.player.blank?
-    SpotifySearchService.format_track(@spotify_user.player.currently_playing)
+  def handle_winner
+    close_voting
+    winner = RedisUtilities::winning_track(@channel.name)
+    puts "WINNER: #{winner['name']}"
+    @playlist.add_tracks! [RSpotify::Track.find(winner['id'])]
+    # broadcast_up_next
+    # broadcast_clear_votes
   end
 
-  def init_pusher
-    Pusher::Client.new(
-      app_id: ENV['pusher_app_id'],
-      key: ENV['pusher_key'],
-      secret: ENV['pusher_secret'],
-      cluster: ENV['pusher_cluster'],
-      use_tls: true
-    )
+  def restart_voting
+    RedisUtilities::clear_votes!(@channel.name)
+    open_voting
   end
-  # /duplication
+
+  def open_voting
+
+  end
+
+  def close_voting
+
+  end
+  
 
   def self.cancel!(jid)
     puts 'canceling!'
     Sidekiq.redis {|c| c.setex("cancelled-#{jid}", 86400, 1) }
+  end
+
+  def self.cancelled?(jid)
+    Sidekiq.redis {|c| c.exists("cancelled-#{jid}") }
   end
   
 end

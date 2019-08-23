@@ -12,15 +12,14 @@ class ChannelsController < ApplicationController
   end
 
   def show
-    redirect_to channel_host_path(name: @channel.name) if @channel.user == current_user
-    @current_votes = VotingService.new(channel: @channel).get_current_votes
-
-    # eh could put this elsewhere
-    @current_track = Redis.new.get("#{@channel.name}_current_track")
-    @current_track = JSON.parse(@current_track) if @current_track
-    @current_track ||= {}
-    # /eh
-
+    if @channel.user == current_user
+      redirect_to channel_host_path(name: @channel.name) 
+      return
+    end
+    puts RedisUtilities::winning_track(@channel.name)
+    puts "ch name: #{@channel.name}"
+    @current_votes = RedisUtilities::current_votes(@channel.name)
+    @current_track = RedisUtilities::current_track(@channel.name)
   end
 
   def destroy
@@ -47,18 +46,10 @@ class ChannelsController < ApplicationController
   end
 
   def host
-    @current_votes = VotingService.new(channel: @channel).get_current_votes
+    @current_votes = RedisUtilities::current_votes(@channel.name)
     host = SpotifyHostService.host(user: current_user, channel: @channel)
     @playlist_url = host.playlist.external_urls["spotify"]
-    puts '#****#*#**#'
-    puts host.playlist.inspect
-    # eh could put this elsewhere
-    @current_track = Redis.new.get("#{@channel.name}_current_track")
-    @current_track = JSON.parse(@current_track) if @current_track
-    @current_track ||= {}
-  
-    # /eh
-
+    @current_track = RedisUtilities::current_track(@channel.name)
   end
 
   # post /channel/:id/vote
@@ -66,7 +57,7 @@ class ChannelsController < ApplicationController
     respond_to do |format|
       @vote = vote_params.to_h
       @vote[:vote_count] ||= 0
-      result = VotingService.send_vote(channel: @channel, vote: @vote)
+      result = VotingService.vote(channel: @channel, vote: @vote)
       puts result
       format.json {render json: result, status: :ok }
     end

@@ -1,4 +1,3 @@
-#############
 trackCardHtml = (track) ->
   return """
     <div class="track-card" data-track-id="#{track.id}">
@@ -70,7 +69,10 @@ $ ->
     trackData = $(this).data('track-data')
     $.post(
       window.location.pathname + '/vote',
-      {vote: trackData},
+      {
+        vote: trackData,
+        authenticity_token: $('[name="csrf-token"]')[0].content
+      },
       (result)->
         return
     )
