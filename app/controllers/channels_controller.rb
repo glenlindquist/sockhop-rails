@@ -16,8 +16,7 @@ class ChannelsController < ApplicationController
       redirect_to channel_host_path(name: @channel.name) 
       return
     end
-    puts RedisUtilities::winning_track(@channel.name)
-    puts "ch name: #{@channel.name}"
+    @host_present = RedisUtilities::host_present?(@channel.name)
     @current_votes = RedisUtilities::current_votes(@channel.name)
     @current_track = RedisUtilities::current_track(@channel.name)
   end

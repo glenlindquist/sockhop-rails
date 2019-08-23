@@ -114,11 +114,30 @@ $ ->
       $card = $(trackCardHtml(track)).appendTo('#current-track-results')
     return
 
+
+  # We do not want this binding on the host's page
+  if $(".channels.host").length == 0
+    channel.bind 'host_presence', (presence) ->
+      console.log "presence changed!"
+      if presence == true
+        # do something if host joins
+      else
+        # do something if host leaves
+      
+      # reload page regardless
+      location.reload();
+      return
+    
+
+
+  # should we publish our own event for this?
+  # otherwise it's a race condition?
+  # or wait 5 seconds...? Is that dumb?
+
   presenceChannel.bind 'pusher:member_removed', (member) ->
     console.log member
     if member.info.is_host
       console.log 'host left!'
-      $('body').css('background-color', 'lightpink')
     else
       console.log 'voter left!'
       # decrease viewer count?
@@ -128,7 +147,6 @@ $ ->
     console.log member
     if member.info.is_host
       console.log 'host joined!'
-      $('body').css('background-color', 'white')
     else
       console.log 'voter joined!'
       # increase viewer count?

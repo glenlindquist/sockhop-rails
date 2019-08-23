@@ -13,15 +13,15 @@ class SpotifyHostService
     @channel = options.fetch :channel
     @spotify_user = RSpotify::User.new(@user.spotify_user_data)
     @playlist_name = "sockhop-#{@channel.name}"
-    @redis = Redis.new
   end
 
   def host
+
     @playlist = get_or_create_playlist
     # clear_playlist
     update_current_track
 
-    if HostWorker.cancelled?(@channel.current_jid)
+    if @channel.current_jid.blank? || HostWorker.cancelled?(@channel.current_jid)
       worker = HostWorker.perform_async(
         spotify_user_hash: @spotify_user.to_hash,
         channel_id: @channel.id,
@@ -29,9 +29,18 @@ class SpotifyHostService
         playlist_id: @playlist.id
       )
       @channel.update(current_jid: worker)
+      RedisUtilities::change_host_presence(@channel.name, true)
+      PusherUtilities::broadcast_host_presence(@channel.name, true)
     end
 
     self
+  end
+
+  def stop_hosting
+    HostWorker.cancel!(@channel.current_jid)
+    RedisUtilities::change_host_presence(@channel.name, false)
+    PusherUtilities::broadcast_host_presence(@channel.name, false)
+    @channel.update(current_jid: nil)
   end
 
   def get_or_create_playlist

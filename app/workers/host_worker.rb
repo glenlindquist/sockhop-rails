@@ -8,7 +8,8 @@ class HostWorker
     @channel = Channel.find(options["channel_id"])
     @playlist = RSpotify::Playlist.find_by_id(options["playlist_id"])
     @cooldown = options.fetch("cooldown", 15000) # 15 seconds
-
+    puts "Host worker started"
+    
     loop do
       break if cancelled?
       # a bit dangerous... add some sort of time out
@@ -23,6 +24,7 @@ class HostWorker
         remaining_ms = new_track[:duration_ms] - player.progress
 
         if remaining_ms <= @cooldown
+          # TODO: logic to stop this from happening twice
           handle_winner
         end
 

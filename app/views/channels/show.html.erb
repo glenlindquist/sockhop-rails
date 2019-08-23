@@ -1,1 +1,9 @@
-<%= render 'channel_view' %>
+<div class="<%= "d-none" unless @host_present %>">
+  <%= render 'channel_view' %>
+</div>
+<% if !@host_present %>
+  <div id="waiting-container">
+    <h1> waiting on host</h1>
+    <h1><%= fa_icon "volume-up", class: "fa-5x fa-spin"%></h1>
+  </div>
+<% end %>

@@ -9,6 +9,10 @@ module PusherUtilities
     pusher_client.trigger(channel_name, 'current_track', current_track)
   end
 
+  def broadcast_host_presence(channel_name, presence)
+    pusher_client.trigger(channel_name, 'host_presence', presence)
+  end
+
   def pusher_client
     Pusher::Client.new(
       app_id: ENV['pusher_app_id'],

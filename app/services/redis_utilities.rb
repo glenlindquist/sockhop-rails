@@ -47,7 +47,12 @@ module RedisUtilities
     redis.set("#{channel_name}_host_presence", host_presence)
   end
 
+  def host_present?(channel_name)
+    redis.get("#{channel_name}_host_presence") == "true"
+  end
+
   def winning_track(channel_name)
+    # TODO: what to do with no votes/no winner?
     tracks = current_votes(channel_name)
     return if tracks.blank?
     tracks.max_by{|track| track['vote_count'].to_i}
