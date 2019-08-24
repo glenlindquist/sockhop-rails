@@ -19,6 +19,7 @@ class ChannelsController < ApplicationController
     @host_present = RedisUtilities::host_present?(@channel.name)
     @current_votes = RedisUtilities::current_votes(@channel.name)
     @current_track = RedisUtilities::current_track(@channel.name)
+    @vote_status = RedisUtilities::voting_open?(@channel.name)
   end
 
   def destroy
@@ -47,8 +48,8 @@ class ChannelsController < ApplicationController
   def host
     @current_votes = RedisUtilities::current_votes(@channel.name)
     host = SpotifyHostService.host(user: current_user, channel: @channel)
-    @playlist_url = host.playlist.external_urls["spotify"]
     @current_track = RedisUtilities::current_track(@channel.name)
+    @vote_status = RedisUtilities::voting_open?(@channel.name)
   end
 
   # post /channel/:id/vote
@@ -56,7 +57,11 @@ class ChannelsController < ApplicationController
     respond_to do |format|
       @vote = vote_params.to_h
       @vote[:vote_count] ||= 0
-      result = VotingService.vote(channel: @channel, vote: @vote)
+      if RedisUtilities::voting_open?(@channel.name)
+        result = VotingService.vote(channel: @channel, vote: @vote)
+      else
+        result = "Voting closed"
+      end
       puts result
       format.json {render json: result, status: :ok }
     end

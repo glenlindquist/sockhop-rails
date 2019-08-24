@@ -7,13 +7,15 @@ module SpotifyUtilities
     player = options.fetch(:player, nil)
     spotify_user = options.fetch(:spotify_user, nil)
     player ||= spotify_user.player
-    if player
+    if player 
+
       return SpotifyUtilities::format_track(player.currently_playing)
     end
     blank_track
   end
 
   def format_track(track)
+    # these fields must also match what is set in channels.coffee in initTrackData
     {
       album_name: track.album.name,
       image_sm: track.album.images.last,
@@ -39,8 +41,13 @@ module SpotifyUtilities
       duration_readable: "",
       uri: "",
       id: "",
-      name: "",
+      name: ""
     }
+  end
+
+  def dummy_track
+    # The Montereys - Get Down
+    SpotifyUtilities::format_track(RSpotify::Track.find('6adi5rBgozEtOTOYiFTt22'))
   end
 
   def readable_duration(duration_ms)

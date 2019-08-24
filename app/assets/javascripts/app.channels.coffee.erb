@@ -1,6 +1,6 @@
-trackCardHtml = (track) ->
+trackCardHtml = (track, voteable = true) ->
   return """
-    <div class="track-card" data-track-id="#{track.id}">
+    <div class="track-card #{"voteable" if voteable}" data-track-id="#{track.id}">
       <img src='#{track.image_med.url}'>
       <div class="btn vote-btn btn-success btn-xl">Vote</div>
       <div class="track-info">
@@ -44,6 +44,42 @@ addVoteContainerTo = ($card)->
   console.log($card)
   $(voteContainerHtml()).insertBefore($card.find('.track-info'));
 
+initTrackCardsData = ()->
+  # Hmm a bit fragile. These fields need to match what is set in
+  # SpotifyUtilities
+  $('.track-card').each (i)->
+    $card = $(this)
+    track = {
+      album_name: $card.attr('data-album-name'),
+      artist: $card.attr('data-artist'),
+      duration_ms: $card.attr('data-duration-ms'),
+      duration_readable: $card.attr('data-duration-readable'),
+      id: $card.attr('data-id'),
+      name: $card.attr('data-name'),
+      image_sm: $card.attr('data-image-sm'),
+      image_med: $card.attr('data-image-med'),
+      image_lg: $card.attr('data-image-lg'),
+      vote_count: $card.attr('data-vote-count')
+      uri: $card.attr('data-uri')
+    }
+    $card.data({track})
+
+clickVoteEvent = ()->
+  console.log "clicked"
+  trackData = $(this).data('track')
+  $.post(
+    window.location.pathname + '/vote',
+    {
+      vote: trackData,
+      authenticity_token: $('[name="csrf-token"]')[0].content
+    },
+    (result)->
+      return
+  )
+
+initEventHandlers = ()->
+  if $('#channel-container').attr('data-vote-status') == "true"
+    $(document).on 'click', '.voteable', clickVoteEvent
 
 ####
 
@@ -57,25 +93,15 @@ class App.Channels
 $ ->
   return unless $(".channels.show").length > 0 || $(".channels.host").length > 0
 
+  initTrackCardsData()
+  initEventHandlers()
+
   $('#search_track_form').on 'ajax:success', (data) ->
     tracks = data.detail[0]
     $('#search-results').empty()
     $.each tracks, (i, track) ->
       $card = $(trackCardHtml(track)).appendTo('#search-results')
-      $card.data('track-data', track)
-    return
-
-  $(document).on 'click', '#search-results .track-card', ->
-    trackData = $(this).data('track-data')
-    $.post(
-      window.location.pathname + '/vote',
-      {
-        vote: trackData,
-        authenticity_token: $('[name="csrf-token"]')[0].content
-      },
-      (result)->
-        return
-    )
+      $card.data('track', track)
     return
 
   pusher = new Pusher(
@@ -101,7 +127,7 @@ $ ->
       addVote(track)
     else
       $card = $(trackCardHtml(track)).appendTo('#vote-results')
-      $card.data('track-data', track)
+      $card.data('track', track)
       addVoteContainerTo($card)
       addVote(track)
     return
@@ -110,10 +136,10 @@ $ ->
     console.log('current track updated!')
     console.log( track )
     if !!track
+      $('#up-next-results').empty()
       $('#current-track-results').empty()
-      $card = $(trackCardHtml(track)).appendTo('#current-track-results')
+      $card = $(trackCardHtml(track, false)).appendTo('#current-track-results')
     return
-
 
   # We do not want this binding on the host's page
   if $(".channels.host").length == 0
@@ -129,11 +155,26 @@ $ ->
       return
     
 
+  channel.bind 'vote_status', (status) ->
+    if status == "open"
+      # voting has just been opened. Remove 'current votes'
+      # TODO: Hmmm we don't necessarily want to do this?
+      console.log "removing votes!"
+      $('#vote-container .track-card').remove()
+      $(document).on 'click', '.voteable', clickVoteEvent
+    else if status == "closed"
+      $(document).off 'click', '.voteable', clickVoteEvent
+    return
 
-  # should we publish our own event for this?
-  # otherwise it's a race condition?
-  # or wait 5 seconds...? Is that dumb?
+  channel.bind 'next_track', (next_track) ->
+    console.log('next track selected!')
+    if !!next_track
+      $('#up-next-results').empty()
+      $card = $(trackCardHtml(next_track, false)).appendTo('#up-next-results')
+    return
 
+
+  # hmm we have our own event to handle host leaving.
   presenceChannel.bind 'pusher:member_removed', (member) ->
     console.log member
     if member.info.is_host

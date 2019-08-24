@@ -13,6 +13,14 @@ module PusherUtilities
     pusher_client.trigger(channel_name, 'host_presence', presence)
   end
 
+  def broadcast_vote_status(channel_name, status)
+    pusher_client.trigger(channel_name, 'vote_status', status)
+  end
+
+  def broadcast_next_track(channel_name, next_track)
+    pusher_client.trigger(channel_name, 'next_track', next_track)
+  end
+
   def pusher_client
     Pusher::Client.new(
       app_id: ENV['pusher_app_id'],

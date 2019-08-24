@@ -1,4 +1,4 @@
-<div id="channel-container" data-channel-id="<%= @channel.id %>" data-channel-name="<%= @channel.name %>">
+<div id="channel-container" data-vote-status="<%= @vote_status%>" data-channel-id="<%= @channel.id %>" data-channel-name="<%= @channel.name %>">
   <div id="search-container">
     <%= render partial: 'spotify_search'%>
     <div id="search-results"></div>
@@ -7,7 +7,7 @@
     <h1>in the running:</h1>
     <div id="vote-results">
       <% @current_votes.each do |track| %>
-        <%= render partial: 'track_card', locals: {track: track} %>
+        <%= render partial: 'track_card', locals: {voteable: true, track: track} %>
       <% end %>
     </div>
   </div>
@@ -15,7 +15,7 @@
     <h1>currently playing:</h1>
     <div id="current-track-results">
       <% if @current_track.present? %>
-        <%= render partial: 'track_card', locals: {track: @current_track} %>
+        <%= render partial: 'track_card', locals: {voteable: false, track: @current_track} %>
       <% end %>
     </div>
     <h1>up next:</h1>

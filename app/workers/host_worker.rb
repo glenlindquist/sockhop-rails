@@ -2,14 +2,18 @@ require 'rspotify'
 
 class HostWorker
   include Sidekiq::Worker
+  sidekiq_options retry: false
+
   def perform(options)
     @spotify_user = RSpotify::User.new(options["spotify_user_hash"])
     @current_track = SpotifyUtilities::current_track(spotify_user: @spotify_user)
     @channel = Channel.find(options["channel_id"])
     @playlist = RSpotify::Playlist.find_by_id(options["playlist_id"])
     @cooldown = options.fetch("cooldown", 15000) # 15 seconds
+    @winner_handled = false
     puts "Host worker started"
-    
+    open_voting
+        
     loop do
       break if cancelled?
       # a bit dangerous... add some sort of time out
@@ -23,7 +27,7 @@ class HostWorker
         end
         remaining_ms = new_track[:duration_ms] - player.progress
 
-        if remaining_ms <= @cooldown
+        if remaining_ms <= @cooldown && !@winner_handled
           # TODO: logic to stop this from happening twice
           handle_winner
         end
@@ -49,25 +53,28 @@ class HostWorker
   end
 
   def handle_winner
+    @winner_handled = true
     close_voting
     winner = RedisUtilities::winning_track(@channel.name)
     puts "WINNER: #{winner['name']}"
     @playlist.add_tracks! [RSpotify::Track.find(winner['id'])]
-    # broadcast_up_next
-    # broadcast_clear_votes
+    PusherUtilities::broadcast_next_track(@channel.name, winner)
   end
 
   def restart_voting
+    @winner_handled = false
     RedisUtilities::clear_votes!(@channel.name)
     open_voting
   end
 
   def open_voting
-
+    PusherUtilities::broadcast_vote_status(@channel.name, "open")
+    RedisUtilities::change_vote_status(@channel.name, "open")
   end
 
   def close_voting
-
+    PusherUtilities::broadcast_vote_status(@channel.name, "closed")
+    RedisUtilities::change_vote_status(@channel.name, "closed")
   end
   
 

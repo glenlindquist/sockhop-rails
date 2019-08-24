@@ -47,14 +47,22 @@ module RedisUtilities
     redis.set("#{channel_name}_host_presence", host_presence)
   end
 
+  def change_vote_status(channel_name, status)
+    redis.set("#{channel_name}_vote_status", status)
+  end
+
   def host_present?(channel_name)
     redis.get("#{channel_name}_host_presence") == "true"
+  end
+
+  def voting_open?(channel_name)
+    redis.get("#{channel_name}_vote_status") == "open"
   end
 
   def winning_track(channel_name)
     # TODO: what to do with no votes/no winner?
     tracks = current_votes(channel_name)
-    return if tracks.blank?
+    return SpotifyUtilities::dummy_track.transform_keys(&:to_s) if tracks.blank?
     tracks.max_by{|track| track['vote_count'].to_i}
   end
 

@@ -1,5 +1,10 @@
 
-<div class="track-card" data-track-id="<%= track['id'] %>">
+<%= content_tag(
+  :div,
+  class: voteable ? "track-card voteable" : "track-card",
+  data: track.merge("track-id" => track['id'])
+  ) do 
+%>
   <img src='<%=track['image_med']['url']%>'>
   <div class="btn vote-btn btn-success btn-xl">Vote</div>
   <div class="vote-container">
@@ -12,7 +17,6 @@
     <div class="track-album-name"><em>Album: </em><%=track['album_name']%></div>
     <div class="track-duration"><em><%=track['duration_readable']%></em></div>
   </div>
-</div>
-
+<% end %>
 
 

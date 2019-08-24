@@ -51,7 +51,7 @@
   width: 100%;
 }
 
-.track-card:hover{
+.track-card.voteable:hover{
   outline: 5px solid #28a745;
   outline-offset: -5px;
   .vote-btn{

@@ -21,7 +21,10 @@ class SpotifyHostService
     # clear_playlist
     update_current_track
 
+    puts "about to start worker"
+    puts "jid: #{@channel.current_jid}"
     if @channel.current_jid.blank? || HostWorker.cancelled?(@channel.current_jid)
+      puts "starting worker"
       worker = HostWorker.perform_async(
         spotify_user_hash: @spotify_user.to_hash,
         channel_id: @channel.id,
@@ -37,8 +40,11 @@ class SpotifyHostService
   end
 
   def stop_hosting
+    puts "shutting down host"
     HostWorker.cancel!(@channel.current_jid)
     RedisUtilities::change_host_presence(@channel.name, false)
+    RedisUtilities::change_vote_status(@channel.name, "closed")
+    RedisUtilities::clear_votes!(@channel.name)
     PusherUtilities::broadcast_host_presence(@channel.name, false)
     @channel.update(current_jid: nil)
   end
