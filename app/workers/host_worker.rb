@@ -21,19 +21,25 @@ class HostWorker
 
       if player
         new_track = SpotifyUtilities::current_track(player: player)
-        if new_track[:id] != @current_track[:id]
-          @current_track = new_track
-          register_track_change
-        end
-        remaining_ms = new_track[:duration_ms] - player.progress
 
-        if remaining_ms <= @cooldown && !@winner_handled
-          # TODO: logic to stop this from happening twice
-          handle_winner
+        if new_track[:id] != ""
+          if new_track[:id] != @current_track[:id]
+            @current_track = new_track
+            register_track_change
+          end
+          remaining_ms = new_track[:duration_ms] - player.progress
+
+          if remaining_ms <= @cooldown && !@winner_handled
+            # TODO: logic to stop this from happening twice
+            handle_winner
+          end
+
+          puts @current_track[:name]
+          puts "Time Remaining: #{SpotifyUtilities::readable_duration(remaining_ms)}"
+        else
+          puts "Not playing a track" # i.e. ad, episode, other
         end
 
-        puts @current_track[:name]
-        puts "Time Remaining: #{SpotifyUtilities::readable_duration(remaining_ms)}"
       else
         puts "Player not open"
       end

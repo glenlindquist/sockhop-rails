@@ -7,8 +7,8 @@ module SpotifyUtilities
     player = options.fetch(:player, nil)
     spotify_user = options.fetch(:spotify_user, nil)
     player ||= spotify_user.player
-    if player 
-
+    spotify_user ||= player.user
+    if player && player.currently_playing_type == "track"
       return SpotifyUtilities::format_track(player.currently_playing)
     end
     blank_track
