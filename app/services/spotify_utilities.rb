@@ -6,8 +6,10 @@ module SpotifyUtilities
   def current_track(options)
     player = options.fetch(:player, nil)
     spotify_user = options.fetch(:spotify_user, nil)
+    return blank_track if player.blank? && spotify_user.blank?
+
     player ||= spotify_user.player
-    spotify_user ||= player.user
+
     if player && player.currently_playing_type == "track"
       return SpotifyUtilities::format_track(player.currently_playing)
     end
@@ -15,6 +17,7 @@ module SpotifyUtilities
   end
 
   def format_track(track)
+    return blank_track unless track
     # these fields must also match what is set in channels.coffee in initTrackData
     {
       album_name: track.album.name,
@@ -41,7 +44,8 @@ module SpotifyUtilities
       duration_readable: "",
       uri: "",
       id: "",
-      name: ""
+      name: "",
+      blank: true
     }
   end
 

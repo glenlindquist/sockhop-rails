@@ -1,11 +1,16 @@
+
+$background-color: #e8eded;
+$font-color: #2d2e2e;
+
 @import "font-awesome";
 @import "bootstrap";
 @import url('https://fonts.googleapis.com/css?family=Josefin+Sans');
-
 @import "*";
 
 body {
  font-family: 'Josefin Sans', sans-serif;
+ background: $background-color;
+ color: $font-color;
 }
 .navbar-brand {
   color: #FFF !important;

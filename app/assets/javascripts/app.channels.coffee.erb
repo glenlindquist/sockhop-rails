@@ -1,4 +1,5 @@
 trackCardHtml = (track, voteable = true) ->
+  return blankTrackCardHtml() if track.blank == true || track.blank == "true"
   return """
     <div class="track-card #{"voteable" if voteable}" data-track-id="#{track.id}">
       <img src='#{track.image_med.url}'>
@@ -9,6 +10,13 @@ trackCardHtml = (track, voteable = true) ->
         <div class="track-album-name"><em>Album: </em>#{track.album_name}</div>
         <div class="track-duration"><em>#{track.duration_readable}</em></div>
       </div>
+    </div>
+  """
+
+blankTrackCardHtml = () ->
+  return """
+    <div class="track-card blank-track-card">
+      <h1> ad. </h1>
     </div>
   """
 
@@ -162,8 +170,12 @@ $ ->
       console.log "removing votes!"
       $('#vote-container .track-card').remove()
       $(document).on 'click', '.voteable', clickVoteEvent
+      # hide voting closed message
+      $('#channel-notification-box').addClass('d-none')
     else if status == "closed"
       $(document).off 'click', '.voteable', clickVoteEvent
+      #display voting closed message
+      $('#channel-notification-box').removeClass('d-none')
     return
 
   channel.bind 'next_track', (next_track) ->

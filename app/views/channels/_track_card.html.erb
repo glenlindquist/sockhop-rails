@@ -1,22 +1,27 @@
 
-<%= content_tag(
-  :div,
-  class: voteable ? "track-card voteable" : "track-card",
-  data: track.merge("track-id" => track['id'])
-  ) do 
-%>
-  <img src='<%=track['image_med']['url']%>'>
-  <div class="btn vote-btn btn-success btn-xl">Vote</div>
-  <div class="vote-container">
-    <span>Votes</span>
-    <span class="vote-count"><%= track['vote_count'] %></span>
+<% if track['blank'] == true || track['blank'] == 'true'%>
+  <div class="track-card blank-track-card">
+    <h1> ad. </h1>
   </div>
-  <div class="track-info">
-    <div class="track-name"><em>Track: </em><%=track['name']%></div>
-    <div class="track-artist"><em>Artist: </em><%=track['artist']%></div>
-    <div class="track-album-name"><em>Album: </em><%=track['album_name']%></div>
-    <div class="track-duration"><em><%=track['duration_readable']%></em></div>
-  </div>
+<% else %>
+  <%= content_tag(
+    :div,
+    class: voteable ? "track-card voteable" : "track-card",
+    data: track.merge("track-id" => track['id'])
+    ) do 
+  %>
+    <img src='<%=track['image_med']['url']%>'>
+    <div class="btn vote-btn btn-success btn-xl">Vote</div>
+    <div class="vote-container">
+      <span>Votes</span>
+      <span class="vote-count"><%= track['vote_count'] %></span>
+    </div>
+    <div class="track-info">
+      <div class="track-name"><em>Track: </em><%=track['name']%></div>
+      <div class="track-artist"><em>Artist: </em><%=track['artist']%></div>
+      <div class="track-album-name"><em>Album: </em><%=track['album_name']%></div>
+      <div class="track-duration"><em><%=track['duration_readable']%></em></div>
+    </div>
+  <% end %>
 <% end %>
-
 

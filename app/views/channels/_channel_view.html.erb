@@ -1,3 +1,6 @@
+<div class="<%= 'd-none' if @vote_status %>" id="channel-notification-box">
+  <h1>hold your horses. voting for the next track is closed.</h1>
+</div>
 <div id="channel-container" data-vote-status="<%= @vote_status%>" data-channel-id="<%= @channel.id %>" data-channel-name="<%= @channel.name %>">
   <div id="search-container">
     <%= render partial: 'spotify_search'%>
