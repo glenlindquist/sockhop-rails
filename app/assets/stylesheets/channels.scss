@@ -10,12 +10,10 @@
   #vote-container{
     max-width: 33%;
     flex-grow: 1;
-    flex-shrink: 0;
   }
   #currently-playing-container{
     max-width: 33%;
     flex-grow: 1;
-    flex-shrink: 0;
   }
 }
 #search-results{
@@ -26,7 +24,10 @@
 
 .track-card{
   position: relative;
-  width: 300px;
+  max-width: 300px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 2px;
   img{
     max-width: 100%;
     height: auto;
@@ -44,8 +45,8 @@
 }
 
 .blank-track-card{
-  width: 300px;
-  height: 300px;
+  max-width: 300px;
+  
   display: flex;
   justify-content: center;
   align-items: center;
@@ -55,24 +56,46 @@
   color: $background-color;
 
   h1 {
-    font-size: 10em;
+    font-size: 5em;
+  }
+}
+
+// height match width
+.blank-track-card:before{
+  content: "";
+  display: block;
+  padding-top: 100%;}
+
+
+.track-card.voteable:hover{
+  cursor: pointer;
+  .track-card-overlay{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  // outline: 5px solid #28a745;
+  // outline-offset: -5px;
+  // .vote-btn{
+  //   display: block;
+  // }
+}
+
+.track-card-overlay{
+  display: none;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 2;
+  background-color: rgba(0, 255, 0, 0.2);
+  .vote-btn{
+    display: block;
   }
 }
 
 .vote-btn {
-  border-radius: 0px;
   display: none;
-  position: absolute;
-  top: 50%;
-  width: 100%;
-}
-
-.track-card.voteable:hover{
-  outline: 5px solid #28a745;
-  outline-offset: -5px;
-  .vote-btn{
-    display: block;
-  }
+  font-size: 5em;
 }
 
 .vote-container {

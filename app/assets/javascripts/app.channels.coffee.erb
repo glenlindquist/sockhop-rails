@@ -2,8 +2,10 @@ trackCardHtml = (track, voteable = true) ->
   return blankTrackCardHtml() if track.blank == true || track.blank == "true"
   return """
     <div class="track-card #{"voteable" if voteable}" data-track-id="#{track.id}">
+      <div class="track-card-overlay">
+        <div class="btn vote-btn btn-success btn-xl">vote</div>
+      </div>
       <img src='#{track.image_med.url}'>
-      <div class="btn vote-btn btn-success btn-xl">Vote</div>
       <div class="track-info">
         <div class="track-name"><em>Track: </em>#{track.name}</div>
         <div class="track-artist"><em>Artist: </em>#{track.artist}</div>

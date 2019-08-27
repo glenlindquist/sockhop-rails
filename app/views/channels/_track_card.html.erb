@@ -10,8 +10,10 @@
     data: track.merge("track-id" => track['id'])
     ) do 
   %>
+    <div class="track-card-overlay">
+      <div class="btn vote-btn btn-success btn-xl">vote</div>
+    </div>
     <img src='<%=track['image_med']['url']%>'>
-    <div class="btn vote-btn btn-success btn-xl">Vote</div>
     <div class="vote-container">
       <span>Votes</span>
       <span class="vote-count"><%= track['vote_count'] %></span>

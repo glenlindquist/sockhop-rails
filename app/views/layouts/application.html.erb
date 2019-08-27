@@ -19,6 +19,9 @@
         <%= link_to 'log in', new_user_session_path %> |
         <%= link_to 'sign up', new_user_registration_path %>
       <% end %>
+      <% if @channel %>
+        <h1><%= @channel.name %></h1>
+      <% end %>
     </div>
     <div>
       <p class="notice"><%= flash[:notice] %></p>
