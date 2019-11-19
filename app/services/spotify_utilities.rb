@@ -30,7 +30,7 @@ module SpotifyUtilities
       uri: track.uri,
       id: track.id,
       name: track.name
-    }
+    }.with_indifferent_access
   end
 
   def blank_track
@@ -46,7 +46,7 @@ module SpotifyUtilities
       id: "",
       name: "",
       blank: true
-    }
+    }.with_indifferent_access
   end
 
   def dummy_track

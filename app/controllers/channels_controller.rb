@@ -20,6 +20,7 @@ class ChannelsController < ApplicationController
     @current_votes = RedisUtilities::current_votes(@channel.name)
     @current_track = RedisUtilities::current_track(@channel.name)
     @vote_status = RedisUtilities::voting_open?(@channel.name)
+    @user_vote = RedisUtilities::user_vote(@channel.name, current_user.id)
   end
 
   def destroy
@@ -50,6 +51,7 @@ class ChannelsController < ApplicationController
     host = SpotifyHostService.host(user: current_user, channel: @channel)
     @current_track = RedisUtilities::current_track(@channel.name)
     @vote_status = RedisUtilities::voting_open?(@channel.name)
+    @user_vote = RedisUtilities::user_vote(@channel.name, current_user.id)
   end
 
   # post /channel/:id/vote
@@ -57,6 +59,7 @@ class ChannelsController < ApplicationController
     respond_to do |format|
       @vote = vote_params.to_h
       @vote[:vote_count] ||= 0
+      @vote[:user_id] = current_user.id
       if RedisUtilities::voting_open?(@channel.name)
         result = VotingService.vote(channel: @channel, vote: @vote)
       else

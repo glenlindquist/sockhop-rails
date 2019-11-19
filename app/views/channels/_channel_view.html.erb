@@ -7,6 +7,16 @@
     <div id="search-results"></div>
   </div>
   <div id="vote-container">
+    <h1>your vote:</h1>
+    <div id="current-track-results">
+      <% if @user_vote.present? %>
+        <%= render partial: 'track_card', locals: {voteable: false, track: @user_vote} %>
+      <% else %>
+        <div class="track-card blank-track-card">
+          <h1> n/a </h1>
+        </div>
+      <% end %>
+    </div>
     <h1>in the running:</h1>
     <div id="vote-results">
       <% @current_votes.each do |track| %>

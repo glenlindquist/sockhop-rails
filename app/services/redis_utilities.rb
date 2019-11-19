@@ -16,7 +16,7 @@ module RedisUtilities
 
   def current_track(channel_name)
     track = redis.get("#{channel_name}_current_track")
-    track = JSON.parse(track) if track
+    track = JSON.parse(track).with_indifferent_access if track
     track ||= {}
   end
 
@@ -33,6 +33,9 @@ module RedisUtilities
     new_vote["vote_count"] += 1
 
     current_votes << new_vote
+    
+    # todo: check for old user vote and remove from current_votes
+
 
     redis.set("#{channel_name}_votes", current_votes.to_json)
     
@@ -62,8 +65,18 @@ module RedisUtilities
   def winning_track(channel_name)
     # TODO: what to do with no votes/no winner?
     tracks = current_votes(channel_name)
-    return SpotifyUtilities::dummy_track.transform_keys(&:to_s) if tracks.blank?
-    tracks.max_by{|track| track['vote_count'].to_i}
+    return SpotifyUtilities::dummy_track if tracks.blank?
+    tracks.max_by{|track| track['vote_count'].to_i}.with_indifferent_access
+  end
+
+  def user_vote(channel_name, user_id)
+    votes = redis.get("#{channel_name}_votes")
+    if votes.blank?
+      return nil
+    else
+      votes = JSON.parse(votes)
+      votes.find{|vote| vote['user_id'] == user_id}.with_indifferent_access
+    end
   end
 
   def redis
