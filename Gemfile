@@ -42,6 +42,12 @@ group :development, :test do
   gem 'selenium-webdriver'
 end
 
+group :test do  
+  gem 'rspec-rails', '~>3.9.0'
+  gem 'webmock', '~>3.7.6'
+  gem 'mock_redis', '~>0.22.0'
+end
+
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console', '>= 3.3.0'

@@ -12,6 +12,7 @@ module SockhopRails
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.1
+    config.eager_load_paths << Rails.root.join('lib')
 
     RSpotify::authenticate(ENV['spotify_client_id'], ENV['spotify_client_secret'])
 

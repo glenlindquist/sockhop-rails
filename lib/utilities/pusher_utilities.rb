@@ -10,6 +10,7 @@ module PusherUtilities
   end
 
   def broadcast_host_presence(channel_name, presence)
+    raise "Presence must be true/false" unless (presence.class == TrueClass || presence.class == FalseClass)
     pusher_client.trigger(channel_name, 'host_presence', presence)
   end
 

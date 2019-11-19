@@ -75,7 +75,12 @@ module RedisUtilities
       return nil
     else
       votes = JSON.parse(votes)
-      votes.find{|vote| vote['user_id'] == user_id}.with_indifferent_access
+      vote = votes.find{|vote| vote['user_id'] == user_id}
+      if vote
+        vote.with_indifferent_access
+      else
+        nil
+      end
     end
   end
 
