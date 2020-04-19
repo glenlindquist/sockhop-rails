@@ -8,6 +8,7 @@ Pusher notifies channel viewers of song changes and incoming votes.
 
 React for front-end.
 
-A lot of changes need to be made.
-* Auth/signups need to be simplified.
-* Extract a lot of the logic from Sidekiq and move client-side.
+A lot of changes/fixes need to be made.
+* Auth/signups need to be simplified and fixed.
+* Extract a lot of the logic from Sidekiq worker and move client-side (should not have a long-running worker like that).
+* Tests.
