@@ -1,24 +1,13 @@
-# README
+# Sockhop [WIP]
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Spotify-based service where a user can create a channel for other users to vote on the next song—a democratic jukebox.
 
-Things you may want to cover:
+Votes are persisted to Redis.
 
-* Ruby version
+Pusher notifies channel viewers of song changes and incoming votes.
 
-* System dependencies
+React for front-end.
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+A lot of changes need to be made.
+* Auth/signups need to be simplified.
+* Extract a lot of the logic from Sidekiq and move client-side.
